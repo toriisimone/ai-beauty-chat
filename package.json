@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vercel dev",
-    "build": "vercel build"
+    "build": "echo \"No build step needed\""
   },
   "dependencies": {
     "openai": "^4.0.0"
