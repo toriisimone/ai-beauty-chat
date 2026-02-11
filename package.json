@@ -1,0 +1,12 @@
+{
+  "name": "ai-beauty-chat",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "vercel build"
+  },
+  "dependencies": {
+    "openai": "^4.0.0"
+  }
+}
