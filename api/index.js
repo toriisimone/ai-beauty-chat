@@ -5,12 +5,11 @@ const openai = new OpenAI({
 });
 
 module.exports = async function handler(req, res) {
-  // Allow Shopify / browsers
+  // CORS (so Shopify can call this)
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
@@ -20,7 +19,14 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { question, product } = req.body || {};
+    // 🔹 FIX: manually read & parse the request body
+    let body = "";
+    for await (const chunk of req) {
+      body += chunk;
+    }
+    const data = JSON.parse(body || "{}");
+
+    const { question, product } = data;
 
     if (!question) {
       return res.status(400).json({ answer: "No question provided." });
