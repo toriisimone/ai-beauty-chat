@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "echo \"No build step needed\""
+    "build": "echo \"No build step needed\"",
+    "start": "node api/ai-beauty-chat.js"
   },
   "dependencies": {
     "openai": "^4.0.0"
