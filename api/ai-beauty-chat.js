@@ -5,17 +5,41 @@ const openai = new OpenAI({
 });
 
 export default async function handler(req, res) {
+  // ✅ Allow Shopify to call your API (CRITICAL)
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Handle CORS preflight request
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   try {
-    const { question, product } = req.body;
+    if (req.method !== "POST") {
+      return res.status(405).json({ answer: "Method not allowed." });
+    }
+
+    const { question, product } = req.body || {};
+
+    if (!question) {
+      return res.status(400).json({ answer: "No question provided." });
+    }
 
     const prompt = `
-You are a luxury beauty assistant.
-Product: ${product.title}
-Description: ${product.description}
+You are a luxury Sephora-style beauty assistant.
 
-User question: ${question}
+PRODUCT:
+${product?.title || "Unknown product"}
 
-Answer in a warm, Sephora-like tone, concise but helpful.
+DESCRIPTION:
+${product?.description || "No description provided."}
+
+USER QUESTION:
+${question}
+
+Give a warm, concise, helpful answer in a beauty-expert tone.
+Avoid medical claims. Keep it friendly and polished.
 `;
 
     const completion = await openai.chat.completions.create({
@@ -23,12 +47,13 @@ Answer in a warm, Sephora-like tone, concise but helpful.
       messages: [{ role: "user", content: prompt }]
     });
 
-    res.status(200).json({
-      answer: completion.choices[0].message.content
-    });
+    const answer = completion.choices[0]?.message?.content || 
+      "I’m having trouble answering that right now.";
+
+    return res.status(200).json({ answer });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ answer: "AI is currently unavailable." });
+    console.error("AI Error:", err);
+    return res.status(500).json({ answer: "AI is currently unavailable." });
   }
 }
